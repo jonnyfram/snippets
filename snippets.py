@@ -17,8 +17,19 @@ def main():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="Name of the snippet")
     put_parser.add_argument("snippet", help="Snippet text")
+    put_parser.add_argument("get", help="Get name of snippet")
     
     arguments = parser.parse_args()
+    #convert parsed arguments from namespace to dictionary
+    arguments = vars(arguments)
+    command = arguments.pop("command")
+    
+    if command == "put":
+        name, snippet = put(**arguments)
+        print("Stored {!r} as {!r}".format(snippet, name))
+    elif command == "get":
+        snippet = get(**arguments)
+        print("Retrieved snippet: {!r}".format(snippet))
 
 def put(name , snippet):
     """
