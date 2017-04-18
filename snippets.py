@@ -1,4 +1,5 @@
 import logging
+import argparse
 
 #Set the log output file, and the log level
 
@@ -6,9 +7,9 @@ logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
 
 def main():
     """Main function"""
-    logging.info("Constructing parse")
+    logging.info("Constructing parser")
     parser = argparse.ArgumentParser(description="Store and retrieve snippets of text")
-    arguments parser.parse_args()
+    arguments = parser.parse_args()
 
 def put(name , snippet):
     """
