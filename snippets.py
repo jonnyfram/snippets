@@ -48,7 +48,7 @@ def get(name):
     Returns the snippet.
     """
     logging.error("FIXME: Unimplemented - get({!r})".format(name))
-    return ""
+    return name
     
 def time(time, name):
     """
@@ -58,7 +58,7 @@ def time(time, name):
     
     Returns the time and name of snippet.
     """
-    logging.error("FIXME: Unimplemented - get({!r}), {!r})".format(time, name))
+    logging.error("FIXME: Unimplemented - time({!r}), {!r})".format(time, name))
     return time, name
     
 if __name__ == "__main__":
