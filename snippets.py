@@ -23,7 +23,7 @@ def main():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="Name of the snippet")
     put_parser.add_argument("snippet", help="Snippet text")
-    #put_parser.add_argument("get", help="Get name of snippet")
+    put_parser.add_argument("get", help="Get name of snippet")
     
     arguments = parser.parse_args()
     #convert parsed arguments from namespace to dictionary
@@ -37,11 +37,8 @@ def main():
         snippet = get(**arguments)
         print("Retrieved snippet: {!r}".format(snippet))
 
-def put(name , snippet):
-    """
-    Store a snippet with an associated name.Store
-    Returns the name and the snippet
-    """
+def put(name, snippet):
+    """Store a snippet with an associated name."""
     
     logging.info ("Storing snippet {!r}: {!r}".format(name, snippet))
     cursor = connection.cursor()
@@ -53,13 +50,14 @@ def put(name , snippet):
     
 def get(name):
     """ Retrieve the snippet with a given name.
-    
     If there is no such snippet, return '404: Snippet Not Found'.
+    Returns the snippet."""
+    logging.info("Retrieving snippet {!r}".format(name))
+    cursor = connection.cursor()
+    command = "select keyword from snippets where keyword='(%s,)'"
+    retrieved_snippet = cursor.execute(command, (name))
     
-    Returns the snippet.
-    """
-    logging.error("FIXME: Unimplemented - get({!r})".format(name))
-    return name
+    return retrieved_snippet
     
 def time(time, name):
     """
