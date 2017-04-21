@@ -6,13 +6,14 @@ import argparse
 #Set the log output file, and the log level
 
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
+logging.debug("Connecting to PostgreSQL")
+connection = psycopg2.connect(database="snippets")
+logging.debug("Database connection established.")
 
 def main():
     """Main function"""
     logging.info("Constructing parser")
-    logging.debug("Connecting to PostgreSQL")
-    connection = psycopg2.connect(database="snippets")
-    logging.debug("Database connection established.")
+
     
     parser = argparse.ArgumentParser(description="Store and retrieve snippets of text")
     
@@ -23,7 +24,9 @@ def main():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="Name of the snippet")
     put_parser.add_argument("snippet", help="Snippet text")
-    put_parser.add_argument("get", help="Get name of snippet")
+    
+    get_parser = subparsers.add_parser("get", help="Get the name of a snippet")
+    get_parser.add_argument("get", help="Get name of snippet")
     
     arguments = parser.parse_args()
     #convert parsed arguments from namespace to dictionary
@@ -34,7 +37,7 @@ def main():
         name, snippet = put(**arguments)
         print("Stored {!r} as {!r}".format(snippet, name))
     elif command == "get":
-        snippet = get(**arguments)
+        snippet = get(arguments)
         print("Retrieved snippet: {!r}".format(snippet))
 
 def put(name, snippet):
