@@ -13,8 +13,6 @@ logging.debug("Database connection established.")
 def main():
     """Main function"""
     logging.info("Constructing parser")
-
-    
     parser = argparse.ArgumentParser(description="Store and retrieve snippets of text")
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -27,26 +25,40 @@ def main():
     
     get_parser = subparsers.add_parser("get", help="Get the name of a snippet")
     get_parser.add_argument("name", help="Get name of snippet")
+   
+    update_parser = subparsers.add_parser("update", help="Replace/update name of snippet and text")
+    update_parser.add_argument("name", help="Name of the snippet")
+    update_parser.add_argument("snippet", help="Snippet text")
     
     arguments = parser.parse_args()
     #convert parsed arguments from namespace to dictionary
     arguments = vars(arguments)
     command = arguments.pop("command") # removes part of arguments
-    
+
     if command == "put":
         name, snippet = put(**arguments)
         print("Stored {!r} as {!r}".format(snippet, name))
+        
     elif command == "get":
         snippet = get(**arguments)
         print("Retrieved snippet: {!r}".format(snippet))
+        
+    elif command == "update":
+        name, snippet = update(**arguments)
+        print("Updated snippet: {!r} with {!r}".format(snippet, name))
 
 def put(name, snippet):
     """Store a snippet with an associated name."""
-    
     logging.info ("Storing snippet {!r}: {!r}".format(name, snippet))
     cursor = connection.cursor()
-    command = "insert into snippets values (%s, %s)"
-    cursor.execute(command, (name,snippet))
+    try:
+        command = "insert into snippets values (%s, %s)"
+        cursor.execute(command, (name,snippet))
+    except psycopg2.IntegrityError as e:
+        connection.rollback()
+        command = "update snippets set message=%s where keyword %s"
+        cursor.execute(command, (snippet,name))
+
     connection.commit()
     logging.debug("Snippet stored successfully")
     return name, snippet
@@ -58,24 +70,25 @@ def get(name):
     logging.info("Retrieving snippet {!r}".format(name))
     cursor = connection.cursor()
     command = "select keyword from snippets where keyword=%s"
-    cursor.execute(command, (name,))
-    return_value = cursor.fetchone() 
     
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select message from snippets where keyword=%s", (name,))
+        row = cursor.fetchone()
+        return cursor.fetchone()
+       #returns tuple from database
+        
+    #return_value = cursor.fetchone() 
     if not return_value:
         return "404: snippet not found"
     
-    return cursor.fetchone()   #returns tuple from database
-    
-def time(time, name):
-    """
-    Retrieve the time the snippet was created.
-    
-    If there is no such snippet, return '404: Snippet Not Found'.
-    
-    Returns the time and name of snippet.
-    """
-    logging.error("FIXME: Unimplemented - time({!r}), {!r})".format(time, name))
-    return time, name
+def update(name, snippet):
+    """replaces/updates a snippet with a new one"""
+    logging.info ("Overwriting snippet {!r}: {!r}".format(name, snippet))
+    cursor = connection.cursor()
+
+    command = "insert into snippets values (%s, %s)"
+    cursor.execute(command, (name,snippet))
+
     
 if __name__ == "__main__":
     main()
