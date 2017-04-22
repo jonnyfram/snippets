@@ -26,18 +26,18 @@ def main():
     put_parser.add_argument("snippet", help="Snippet text")
     
     get_parser = subparsers.add_parser("get", help="Get the name of a snippet")
-    get_parser.add_argument("get", help="Get name of snippet")
+    get_parser.add_argument("name", help="Get name of snippet")
     
     arguments = parser.parse_args()
     #convert parsed arguments from namespace to dictionary
     arguments = vars(arguments)
-    command = arguments.pop("command")
+    command = arguments.pop("command") # removes part of arguments
     
     if command == "put":
         name, snippet = put(**arguments)
         print("Stored {!r} as {!r}".format(snippet, name))
     elif command == "get":
-        snippet = get(arguments)
+        snippet = get(**arguments)
         print("Retrieved snippet: {!r}".format(snippet))
 
 def put(name, snippet):
@@ -57,10 +57,14 @@ def get(name):
     Returns the snippet."""
     logging.info("Retrieving snippet {!r}".format(name))
     cursor = connection.cursor()
-    command = "select keyword from snippets where keyword='(%s,)'"
-    retrieved_snippet = cursor.execute(command, (name))
+    command = "select keyword from snippets where keyword=%s"
+    cursor.execute(command, (name,))
+    return_value = cursor.fetchone() 
     
-    return retrieved_snippet
+    if not return_value:
+        return "404: snippet not found"
+    
+    return cursor.fetchone()   #returns tuple from database
     
 def time(time, name):
     """
