@@ -57,24 +57,25 @@ def main():
         
     elif command == "search":
         search_text = search(**arguments)
-        
 
 def catalog():
+    """Print the whole database"""
     cursor = connection.cursor()
-    cursor.fetchall()
+    cursor.execute("select * from snippets")
+    cat = cursor.fetchall()
 
-    snippets_cat = cursor.execute("select * from table")
-    print (snippets_cat)
-    return snippets_cat
+    print (cat)
     
 def search(search_text):
     """"""
     logging.info("searching for snippet text {!r}".format(search_text))
     
     cursor = connection.cursor()
+    cursor.execute("select * from snippets")
     cursor.fetchall()
     
-    cursor.execute("select * from tablet where prescription like '%search_text%'", (search_text))
+    results = cursor.execute("select * from table where prescription like '%search_text%'", (search_text))
+    print(results)
 
 def put(name, snippet):
     """Store a snippet with an associated name."""
