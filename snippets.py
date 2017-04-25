@@ -30,6 +30,11 @@ def main():
     update_parser.add_argument("name", help="Name of the snippet")
     update_parser.add_argument("snippet", help="Snippet text")
     
+    catalog_parser = subparsers.add_parser("catalog", help="Show all snippet keywords")
+    
+    search_parser = subparsers.add_parser("search", help="Search for strings like the input")
+    search_parser.add_argument("searchtext", help="search for this text string")
+    
     arguments = parser.parse_args()
     #convert parsed arguments from namespace to dictionary
     arguments = vars(arguments)
@@ -46,6 +51,30 @@ def main():
     elif command == "update":
         name, snippet = update(**arguments)
         print("Updated snippet: {!r} with {!r}".format(snippet, name))
+        
+    elif command == "catalog":
+        catalog()
+        
+    elif command == "search":
+        search_text = search(**arguments)
+        
+
+def catalog():
+    cursor = connection.cursor()
+    cursor.fetchall()
+
+    snippets_cat = cursor.execute("select * from table")
+    print (snippets_cat)
+    return snippets_cat
+    
+def search(search_text):
+    """"""
+    logging.info("searching for snippet text {!r}".format(search_text))
+    
+    cursor = connection.cursor()
+    cursor.fetchall()
+    
+    cursor.execute("select * from tablet where prescription like '%search_text%'", (search_text))
 
 def put(name, snippet):
     """Store a snippet with an associated name."""
